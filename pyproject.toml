@@ -13,4 +13,6 @@ dependencies = [
     "jinja2",
     "openai-agents>=0.4.1",
     "pycountry>=24.6.1",
+    "gspread>=6.2.1",
+    "google-auth>=2.41.1",
 ]

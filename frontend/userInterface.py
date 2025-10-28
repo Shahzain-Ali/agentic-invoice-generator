@@ -231,6 +231,8 @@ with st.form("invoice_form", clear_on_submit=False):
     
     # Access items list properly
     items_list = st.session_state['items']
+    print("--------------- Items List -----------------\n")
+    print(items_list)
     
     for idx, item in enumerate(items_list):
         st.markdown(f"""
@@ -252,7 +254,7 @@ with st.form("invoice_form", clear_on_submit=False):
         col1, col2 = st.columns(2)
         
         with col1:
-            rate = st.number_input(
+            rate_per_hour = st.number_input(
                 "Rate per Hour ($) *",
                 key=f"rate_{item['id']}",
                 min_value=0.0,
@@ -273,9 +275,11 @@ with st.form("invoice_form", clear_on_submit=False):
         
         items_data.append({
             'description': description,
-            'rate': rate,
+            'rate_per_hour': rate_per_hour,
             'hours': hours,
         })
+        print("--------------- Items Data -----------------\n")
+        print(items_data)
         
         if idx < len(items_list) - 1:
             st.markdown("<br>", unsafe_allow_html=True)
@@ -319,12 +323,16 @@ if submit_button:
     elif "@" not in email or "." not in email.split("@")[-1]:
         errors.append("Please enter a valid email address")
     
-    # Validate items
+     # Validate items
     valid_items = []
     for idx, item in enumerate(items_data):
         if item['description'] and item['description'].strip():
+            if item['rate_per_hour'] <= 0:
+                errors.append(f"Item #{idx + 1}: Rate must be greater than 0")
             if item['hours'] <= 0:
                 errors.append(f"Item #{idx + 1}: Hours must be greater than 0")
+            if item['rate_per_hour'] > 0 and item['hours'] > 0:
+                valid_items.append(item)
            
     if len(valid_items) == 0:
         errors.append("At least 1 service/product item is required")
@@ -335,7 +343,7 @@ if submit_button:
             st.error(f"❌ {error}")
     else:
         # Create JSON object
-        submission_data = {
+        submission_data = {                                                  
             "client_information": {
                 "client_name": client_name,
                 "email": email,
@@ -343,7 +351,7 @@ if submit_button:
                 "country": country,
                 "due_date": due_date.isoformat()
             },
-            "items": [],
+            "items": valid_items,
             "notes": notes if notes else None,
             "submission_date": datetime.now().isoformat(),
             "total_amount": 0
@@ -353,7 +361,7 @@ if submit_button:
         print("\n" + "="*50)
         print("INVOICE REQUEST SUBMITTED")
         print("="*50)
-        # print(json.dumps(submission_data, indent=2))
+        print(json.dumps(submission_data, indent=2))
         print("="*50 + "\n")
         
         response = requests.post(
