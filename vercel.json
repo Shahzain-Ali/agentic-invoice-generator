@@ -1,8 +1,17 @@
 {
+  "version": 2,
   "builds": [
-    { "src": "backend/api/main.py", "use": "@vercel/python" }
+    {
+      "src": "backend/api/main.py",
+      "use": "@vercel/python"
+    }
   ],
   "routes": [
-    { "src": "/(.*)", "dest": "backend/api/main.py" }
-  ]
+    {
+      "src": "/(.*)",
+      "dest": "backend/api/main.py"
+    }
+  ],
+  "installCommand": "uv sync",
+  "buildCommand": "uv run python backend/api/main.py"
 }
