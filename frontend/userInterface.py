@@ -219,7 +219,7 @@ with tab2:
         with st.spinner("Fetching data from Google Sheets... ⏳"):
             try:
                scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
-               creds = Credentials.from_service_account_file('credentials.json', scopes=scope)
+               creds = Credentials.from_service_account_file('/etc/secrets/credentials.json', scopes=scope)               
                client = gspread.authorize(creds)
                google_sheet_id = os.getenv('GOOGLE_SHEET_ID')
                if not google_sheet_id:
