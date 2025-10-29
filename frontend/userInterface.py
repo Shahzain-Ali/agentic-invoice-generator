@@ -1,409 +1,368 @@
 import streamlit as st
-from datetime import datetime, date
-import json
-import pycountry
 import requests
+import pandas as pd # type:ignore
+from datetime import datetime, timedelta
+import gspread
+from google.oauth2.service_account import Credentials
+from dotenv import load_dotenv
+import os
+import json
 
-# Page config
+
+load_dotenv()
+
+# Page configuration
 st.set_page_config(
-    page_title="Invoice Request Form",
-    page_icon="📄",
-    layout="wide"
+    page_title="Smart Invoice Generator",
+    page_icon="💼",
+    layout="wide",
+    initial_sidebar_state="collapsed"
 )
 
-# Custom CSS
+# Custom CSS for professional styling
 st.markdown("""
-<style>
+    <style>
+    /* Main container styling */
     .main {
+        background-color: #f8f9fa;
+    }
+    
+    /* Header styling */
+    .header-container {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
         padding: 2rem;
-    }
-    
-    .stApp {
-        background: linear-gradient(135deg, #f5f7fa 0%, #e8eef5 100%);
-    }
-    
-    .form-header {
-        background: linear-gradient(135deg, #1A73E8 0%, #0d47a1 100%);
-        padding: 2.5rem;
-        border-radius: 15px;
-        color: white;
-        text-align: center;
+        border-radius: 10px;
         margin-bottom: 2rem;
-        box-shadow: 0 4px 15px rgba(26, 115, 232, 0.3);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
     
-    .form-header h1 {
-        margin: 0;
+    .header-title {
+        color: white;
         font-size: 2.5rem;
         font-weight: 700;
+        margin-bottom: 0.5rem;
+        text-align: center;
     }
     
-    .form-header p {
-        margin: 0.5rem 0 0 0;
-        opacity: 0.95;
+    .header-subtitle {
+        color: #e0e7ff;
         font-size: 1.1rem;
+        text-align: center;
     }
     
-    .section-container {
-        background: white;
-        padding: 2rem;
-        border-radius: 12px;
-        margin-bottom: 1.5rem;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.08);
-        border-left: 4px solid #1A73E8;
-    }
+    /* Section styling */
+    # .section-box {
+    #     background: white;
+    #     color: black;
+    #     padding: 2rem;
+    #     border-radius: 10px;
+    #     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+    #     margin-bottom: 1.5rem;
+    # }
     
-    .section-header {
-        display: flex;
-        align-items: center;
-        margin-bottom: 1.5rem;
-        padding-bottom: 1rem;
-        border-bottom: 2px solid #f0f2f6;
-    }
-    
-    .section-icon {
-        font-size: 1.8rem;
-        margin-right: 1rem;
-    }
-    
-    .section-title {
-        font-size: 1.5rem;
-        font-weight: 600;
-        color: #1e293b;
-        margin: 0;
-    }
-    
-    .item-block {
-        background: #f8fafc;
-        padding: 1.5rem;
-        border-radius: 10px;
-        margin-bottom: 1rem;
-        border: 1px solid #e2e8f0;
-    }
-    
-    .item-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1rem;
-    }
-    
-    .item-title {
-        font-weight: 600;
-        color: #475569;
-        font-size: 1.1rem;
-    }
-    
-    .required-label {
-        color: #dc2626;
-        font-weight: 600;
-    }
-    
+    /* Button styling */
     .stButton>button {
         width: 100%;
-        background: linear-gradient(135deg, #1A73E8 0%, #0d47a1 100%);
+        background-color: #667eea;
         color: white;
-        border: none;
+        font-size: 1.1rem;
+        font-weight: 600;
         padding: 0.75rem 2rem;
         border-radius: 8px;
-        font-weight: 600;
-        font-size: 1.1rem;
-        transition: all 0.3s;
+        transition: all 0.3s ease;
     }
     
     .stButton>button:hover {
-        box-shadow: 0 4px 15px rgba(26, 115, 232, 0.4);
-        transform: translateY(-2px);
+        background-color: #5568d3;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
     }
     
-    div[data-testid="stDateInput"] {
-        margin-bottom: 0;
+    /* Footer styling */
+    .footer {
+        text-align: center;
+        padding: 2rem;
+        color: #6b7280;
+        font-size: 0.9rem;
+        margin-top: 3rem;
+        border-top: 1px solid #e5e7eb;
     }
     
-    .success-box {
-        background: #d1fae5;
+    /* Input field styling */
+    .stTextInput>div>div>input, .stTextArea>div>div>textarea {
+        border-radius: 6px;
+        border: 1px solid #d1d5db;
+    }
+    
+    /* Tab styling */
+    .stTabs [data-baseweb="tab-list"] {
+        gap: 8px;
+    }
+    
+    .stTabs [data-baseweb="tab"] {
+        background-color: white;
+        color: black !important;
+        border-radius: 8px 8px 0 0;
+        padding: 12px 24px;
+        font-weight: 500;
+    }
+            
+    /* Success message styling */
+    .success-banner {
+        background-color: #d1fae5;
         border-left: 4px solid #10b981;
-        padding: 1.5rem;
-        border-radius: 8px;
+        padding: 1rem;
+        border-radius: 6px;
         margin: 1rem 0;
     }
-    
-    .summary-table {
-        margin-top: 1rem;
-    }
-    
-    label {
-        font-weight: 500;
-        color: #334155;
-    }
-</style>
+    </style>
 """, unsafe_allow_html=True)
-
-# Initialize session state
-if 'items' not in st.session_state:
-    st.session_state['items'] = [{'id': 0}]
-if 'item_counter' not in st.session_state:
-    st.session_state['item_counter'] = 1
-
-# Get country list
-countries = sorted([country.name for country in pycountry.countries])
-pakistan_index = countries.index("Pakistan")
 
 # Header
 st.markdown("""
-<div class="form-header">
-    <h1>📄 Invoice Request Form</h1>
-    <p>Please fill out the form below to request an invoice for your services</p>
-</div>
+    <div class="header-container">
+        <h1 class="header-title">💼 The Agentive Corporation – Smart Invoice Generator</h1>
+        <p class="header-subtitle">Generate and email client invoices automatically with AI</p>
+    </div>
 """, unsafe_allow_html=True)
 
-# Add item button (before form)
-col1, col2, col3 = st.columns([2, 1, 2])
-with col2:
-    if st.button("➕ Add Another Item", use_container_width=True):
-        st.session_state['items'].append({'id': st.session_state['item_counter']})
-        st.session_state['item_counter'] += 1
-        st.rerun()
+# Initialize session state
+if 'generated_results' not in st.session_state:
+    st.session_state.generated_results = None
+if 'sheet_data' not in st.session_state:
+    st.session_state.sheet_data = None
+if 'excel_data' not in st.session_state:
+    st.session_state.excel_data = None
 
-st.markdown("<br>", unsafe_allow_html=True)
+# Input method tabs
+tab1, tab2, tab3 = st.tabs(["🧾 Manual Form Entry", "📊 Google Sheet Integration", "📁 Upload Excel File"])
 
-# Form
-with st.form("invoice_form", clear_on_submit=False):
-    
-    # Section 1: Client Information
-    st.markdown("""
-    <div class="section-container">
-        <div class="section-header">
-            <span class="section-icon">👤</span>
-            <h2 class="section-title">Client Information</h2>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
+# Manual Form Entry Tab
+with tab1:
+    # st.markdown('<div class="section-box">', unsafe_allow_html=True)
+    st.subheader("📝 Enter Client Information")
     
     col1, col2 = st.columns(2)
     
     with col1:
-        client_name = st.text_input(
-            "Client Name *",
-            placeholder="Enter your full name",
-            help="Required field"
-        )
-        company_name = st.text_input(
-            "Company Name",
-            placeholder="Enter company name (optional)"
+        client_name = st.text_input("Client Name", placeholder="John Doe")
+        email = st.text_input("Email", placeholder="john@example.com")
+        company_name = st.text_input("Company Name", placeholder="Acme Corp")
+        address = st.text_area("Address", placeholder="123 Main St, City, State", height=100)
+    
+    with col2:
+        country = st.text_input("Country", placeholder="United States")
+        due_date = st.date_input("Due Date", value=datetime.now() + timedelta(days=30))
+        current_date = st.date_input("Current Date", value=datetime.now() + timedelta(days=30))
+        rate = st.number_input("Rate per Hour ($)", min_value=0.0, value=50.0, step=5.0)
+        hours = st.number_input("Hours Worked", min_value=0.0, value=40.0, step=0.5)
+    
+    description = st.text_area("Description of Services", placeholder="Web development services, consulting, etc.", height=100)
+    
+    # st.markdown('</div>', unsafe_allow_html=True)
+    
+    if st.button("🚀 Generate Invoice (Manual)", key="manual_generate"):
+        if not all([client_name, email, company_name, address, country, description]):
+            st.error("⚠️ Please fill in all required fields!")
+        else:
+            manual_data = {
+                "method": "manual",
+                "data": [{
+                    "client_name": client_name,
+                    "email": email,
+                    "company_name": company_name,
+                    "address": address,
+                    "country": country,
+                    "due_date": due_date.strftime("%Y-%m-%d"),
+                    "current_date": current_date.strftime("%Y-%m-%d"),
+                    "description": description,
+                    "rate_per_hour": rate,
+                    "hours": hours
+                }]
+            }
+            
+            with st.spinner("Processing invoice... please wait ⏳"):
+                try:
+                    response = requests.post(
+                        "http://localhost:8000/generate_invoices",
+                        json=manual_data,
+                        timeout=None
+                    )
+                
+                    if response.status_code == 200:
+                        st.session_state.generated_results = response.json()
+                        print("Data Successfully Recieved From FastAPI:\n",st.session_state.generated_results)
+                    else:
+                        st.error(f"❌ Error: {response.status_code} - {response.text}")
+                except Exception as e:
+                    st.error(f"❌ Connection error: {str(e)}")
+
+# Google Sheet Integration Tab
+with tab2:
+    # st.markdown('<div class="section-box">', unsafe_allow_html=True)
+    st.subheader("📊 Connect to Google Sheets")
+    
+    col1, col2 = st.columns([3, 1])
+    
+    with col1:
+        sheet_id = st.text_input(
+            "Google Sheet ID",
+            placeholder="1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms",
+            help="Enter the ID from your Google Sheets URL"
         )
     
     with col2:
-        email = st.text_input(
-            "Email Address *",
-            placeholder="your.email@example.com",
-            help="Required field"
-        )
-        country = st.selectbox(
-            "Country *",
-            options=countries,
-            index=pakistan_index,
-            help="Select your country"
-        )
+        st.write("")
+        st.write("")
+        fetch_button = st.button("📥 Fetch Data", key="fetch_sheet")
     
-    today = None  # No default date
+    if fetch_button and sheet_id:
+        with st.spinner("Fetching data from Google Sheets... ⏳"):
+            try:
+               scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
+               creds = Credentials.from_service_account_file('credentials.json', scopes=scope)
+               client = gspread.authorize(creds)
+               google_sheet_id = os.getenv('GOOGLE_SHEET_ID')
+               if not google_sheet_id:
+                   raise ValueError("GOOGLE_SHEET_ID missing in .env file!")
 
-    due_date = st.date_input(
-        "Due Date",
-        value=datetime.today(),
-        help="Select deadline date (optional)",
-    )
+               sheet = client.open_by_key(google_sheet_id).worksheet("Form responses 1")
+               data = sheet.get_all_records()  # Sab rows ek list mein aa jayengi
 
+                # Convert to DataFrame
+               st.session_state.sheet_data = pd.DataFrame(data)
+               st.success("✅ Data fetched successfully!")
+
+            except Exception as e:
+                st.error(f"❌ Error fetching data: {str(e)}")
     
-    st.markdown("<br>", unsafe_allow_html=True)
-    
-    # Section 2: Item Details
-    st.markdown("""
-    <div class="section-container">
-        <div class="section-header">
-            <span class="section-icon">📋</span>
-            <h2 class="section-title">Services / Products</h2>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    items_data = []
-    
-    # Access items list properly
-    items_list = st.session_state['items']
-    print("--------------- Items List -----------------\n")
-    print(items_list)
-    
-    for idx, item in enumerate(items_list):
-        st.markdown(f"""
-        <div class="item-block">
-            <div class="item-header">
-                <span class="item-title">Item #{idx + 1}</span>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
+    if st.session_state.sheet_data is not None:
+        st.dataframe(st.session_state.sheet_data, use_container_width=True)
         
-        description = st.text_area(
-            f"Service / Product Description *",
-            key=f"desc_{item['id']}",
-            placeholder="Describe the service or product provided",
-            height=80,
-            help="Required field"
-        )
-        
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            rate_per_hour = st.number_input(
-                "Rate per Hour ($) *",
-                key=f"rate_{item['id']}",
-                min_value=0.0,
-                step=0.01,
-                format="%.2f",
-                help="Required field"
-            )
-        
-        with col2:
-            hours = st.number_input(
-                "Hours *",
-                key=f"hours_{item['id']}",
-                min_value=0.0,
-                step=0.25,
-                format="%.2f",
-                help="Required field"
-            )
-        
-        items_data.append({
-            'description': description,
-            'rate_per_hour': rate_per_hour,
-            'hours': hours,
-        })
-        print("--------------- Items Data -----------------\n")
-        print(items_data)
-        
-        if idx < len(items_list) - 1:
-            st.markdown("<br>", unsafe_allow_html=True)
+        if st.button("🚀 Generate Invoices (Google Sheet)", key="sheet_generate"):
+            sheet_data_json = {
+                "method": "google_sheet",
+                "sheet_id": sheet_id,
+                "data": st.session_state.sheet_data.to_dict('records')
+            }
+            
+            with st.spinner("Processing invoices... please wait ⏳"):
+                try:
+                    response = requests.post(
+                        "http://localhost:8000/generate_invoices",
+                        json=sheet_data_json,
+                        timeout=None
+                    )
+                    if response.status_code == 200:
+                        st.session_state.generated_results = response.json()
+                    else:
+                        st.error(f"❌ Error: {response.status_code} - {response.text}")
+                except Exception as e:
+                    st.error(f"❌ Connection error: {str(e)}")
     
-    st.markdown("<br>", unsafe_allow_html=True)
+    # st.markdown('</div>', unsafe_allow_html=True)
+
+# Excel Upload Tab
+with tab3:
+    # st.markdown('<div class="section-box">', unsafe_allow_html=True)
+    st.subheader("📁 Upload Excel File")
     
-    # Section 3: Optional Notes
-    st.markdown("""
-    <div class="section-container">
-        <div class="section-header">
-            <span class="section-icon">💬</span>
-            <h2 class="section-title">Additional Notes</h2>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    notes = st.text_area(
-        "Additional Comments / Instructions",
-        placeholder="Any special instructions or additional information...",
-        height=120,
-        help="Optional field"
+    uploaded_file = st.file_uploader(
+        "Choose an Excel file (.xlsx)",
+        type=['xlsx'],
+        help="Upload an Excel file with client information"
     )
     
-    st.markdown("<br>", unsafe_allow_html=True)
+    if uploaded_file is not None:
+        try:
+            st.session_state.excel_data = pd.read_excel(uploaded_file)
+            st.success(f"✅ File uploaded successfully! Found {len(st.session_state.excel_data)} rows.")
+            st.dataframe(st.session_state.excel_data, use_container_width=True)
+            
+            if st.button("🚀 Generate Invoices (Excel)", key="excel_generate"):
+                excel_data_json = {
+                    "method": "excel",
+                    "data": st.session_state.excel_data.to_dict('records')
+                }
+                
+                with st.spinner("Processing invoices... please wait ⏳"):
+                    try:
+                        response = requests.post(
+                            "http://localhost:8000/generate_invoices",
+                            json=excel_data_json,
+                            timeout=60
+                        )
+                        if response.status_code == 200:
+                            st.session_state.generated_results = response.json()
+                        else:
+                            st.error(f"❌ Error: {response.status_code} - {response.text}")
+                    except Exception as e:
+                        st.error(f"❌ Connection error: {str(e)}")
+        
+        except Exception as e:
+            st.error(f"❌ Error reading file: {str(e)}")
     
-    # Submit button
-    col1, col2, col3 = st.columns([1, 2, 1])
-    with col2:
-        submit_button = st.form_submit_button("✅ Submit Invoice Request", use_container_width=True)
+    # st.markdown('</div>', unsafe_allow_html=True)
 
-# Form submission logic
-if submit_button:
-    errors = []
+# Display Results
+if st.session_state.generated_results:
+    st.markdown("---")
+    results = st.session_state.generated_results
     
-    # Validate required fields
-    if not client_name or client_name.strip() == "":
-        errors.append("Client Name is required")
+    st.markdown("""
+        <div class="success-banner">
+            <h3 style="margin: 0; color: #065f46;">✅ All invoices processed successfully!</h3>
+            <p style="margin: 0.5rem 0 0 0; color: #047857;">
+                Processed {} client(s) successfully
+            </p>
+        </div>
+    """.format(results.get('processed_clients', 0)), unsafe_allow_html=True)
     
-    if not email or email.strip() == "":
-        errors.append("Email is required")
-    elif "@" not in email or "." not in email.split("@")[-1]:
-        errors.append("Please enter a valid email address")
+    st.markdown('<div class="section-box">', unsafe_allow_html=True)
+    st.subheader("📋 Processing Summary")
     
-     # Validate items
-    valid_items = []
-    for idx, item in enumerate(items_data):
-        if item['description'] and item['description'].strip():
-            if item['rate_per_hour'] <= 0:
-                errors.append(f"Item #{idx + 1}: Rate must be greater than 0")
-            if item['hours'] <= 0:
-                errors.append(f"Item #{idx + 1}: Hours must be greater than 0")
-            if item['rate_per_hour'] > 0 and item['hours'] > 0:
-                valid_items.append(item)
-           
-    if len(valid_items) == 0:
-        errors.append("At least 1 service/product item is required")
-    
-    # Show errors or process submission
-    if errors:
-        for error in errors:
-            st.error(f"❌ {error}")
+    if 'details' in results and results['details']:
+        cleaned_details = []
+        for d in results['details']:
+           # Remove Markdown fences and parse JSON
+            try:
+               d_clean = d.replace("```json", "").replace("```", "").strip()
+               parsed = json.loads(d_clean)
+               cleaned_details.append(parsed)
+            except Exception as e:
+               print("Error parsing detail item:", e, d)
+
+        if cleaned_details:
+            details_df = pd.DataFrame(cleaned_details)
+        else:
+            details_df = pd.DataFrame()
+        
+        if not details_df.empty:
+            print('Details Available:\n',details_df)
+            column_order = ['client_name', 'email', 'status', 'pdf_path']
+            display_columns = [col for col in column_order if col in details_df.columns]
+            details_df = details_df[display_columns]
+            
+            # Column rename only if columns exist
+            details_df.columns = [col.replace('_', ' ').title() for col in details_df.columns]
+            
+            st.dataframe(details_df, use_container_width=True, hide_index=True)
+        else:
+            st.info("No client details available yet.")
     else:
-        # Create JSON object
-        submission_data = {                                                  
-            "client_information": {
-                "client_name": client_name,
-                "email": email,
-                "company_name": company_name if company_name else None,
-                "country": country,
-                "due_date": due_date.isoformat()
-            },
-            "items": valid_items,
-            "notes": notes if notes else None,
-            "submission_date": datetime.now().isoformat(),
-            "total_amount": 0
-        }
+        st.info("No details available in the response.")
+    
+    st.markdown('</div>', unsafe_allow_html=True)
+    
+    # Add a reset button
+    if st.button("🔄 Generate New Invoices"):
+        st.session_state.generated_results = None
+        st.session_state.sheet_data = None
+        st.session_state.excel_data = None
+        st.rerun()
 
-        # Print to console
-        print("\n" + "="*50)
-        print("INVOICE REQUEST SUBMITTED")
-        print("="*50)
-        print(json.dumps(submission_data, indent=2))
-        print("="*50 + "\n")
-        
-        response = requests.post(
-            "http://localhost:8000/generate_invoice",
-            json=submission_data   # ✅ Correct
-        )
-        st.success("Invoice generated! Check response: " )
-        
-        # Summary table
-        st.markdown("### 📊 Submission Summary")
-        
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            st.markdown(f"""
-            **Client:** {client_name}  
-            **Email:** {email}  
-            **Company:** {company_name if company_name else 'N/A'}
-            """)
-        
-        with col2:
-            st.markdown(f"""
-            **Country:** {country}  
-            **Due Date:** {due_date}  
-            **Submitted:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
-            """)
-        
-        st.markdown("---")
-        st.markdown("### 📋 Items")
-        
-        for idx, item in enumerate(valid_items):
-            st.markdown(f"""
-            **Item #{idx + 1}**  
-            Description: {item['description']}  
-            """)
-            st.markdown("")
-        
-        st.markdown
-        if notes:
-            st.markdown(f"**Notes:** {notes}")
-        
-        st.markdown("---")
-        
-        with st.expander("📄 View JSON Output"):
-            st.json(submission_data)
+# Footer
+st.markdown("""
+    <div class="footer">
+        © 2025 The Agentive Corporation | Powered by AI
+    </div>
+""", unsafe_allow_html=True)
