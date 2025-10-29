@@ -156,7 +156,6 @@ python-multipart==0.0.20
     # via mcp
 pytz==2025.1
     # via pandas
-pywin32==311
     # via mcp
 referencing==0.36.2
     # via
