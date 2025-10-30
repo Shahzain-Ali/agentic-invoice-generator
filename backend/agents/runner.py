@@ -114,27 +114,43 @@ from agents import function_tool
 #     except Exception as e:
 #         return json.dumps({"error": "Failed to generate PDF", "details": str(e)})
 import resend
+import os
+import json
+import base64
 
 @function_tool
 def send_email_tool(email_to: str, pdf_path: str) -> str:
     try:
+        # 1. API Key
         resend.api_key = os.getenv("RESEND_API_KEY")
-        with open(pdf_path, "rb") as f:
-            attachment = f.read()
+        if not resend.api_key:
+            return json.dumps({"error": "RESEND_API_KEY not set"})
 
-        params = {  # type: ignore
-            "from": "Invoice <invoice@yourdomain.com>",
-            "to": [email_to],
+        # 2. PDF Check
+        if not os.path.exists(pdf_path):
+            return json.dumps({"error": f"PDF not found: {pdf_path}"})
+
+        # 3. Read & Encode PDF
+        with open(pdf_path, "rb") as f:
+            pdf_b64 = base64.b64encode(f.read()).decode()
+
+        # 4. Send Email (MyPy + Runtime Safe)
+        email = resend.Emails.send({
+            "from": "Invoice <onboarding@resend.dev>",  # Default verified
+            "to": email_to,
             "subject": "The Agentive Corporation – Invoice",
             "text": "Invoice attached. Pay by due date.",
-            "attachments": [{"filename": "invoice.pdf", "content": attachment}]
-        }
+            "attachments": [{
+                "content": pdf_b64,
+                "filename": "invoice.pdf"
+            }]
+        })
 
-        resend.Emails.send(params)  # type: ignore
-        return json.dumps({"status": "success"})
+        return json.dumps({"status": "success", "email_id": email["id"]})
+
     except Exception as e:
-        return json.dumps({"error": str(e)})
-
+        return json.dumps({"error": f"Email failed: {str(e)}"})
+    
 
 from weasyprint import HTML
 
