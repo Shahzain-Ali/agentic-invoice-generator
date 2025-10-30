@@ -114,29 +114,23 @@ from agents import function_tool
 #     except Exception as e:
 #         return json.dumps({"error": "Failed to generate PDF", "details": str(e)})
 import resend
-from resend import Emails
 
 @function_tool
 def send_email_tool(email_to: str, pdf_path: str) -> str:
     try:
         resend.api_key = os.getenv("RESEND_API_KEY")
-
         with open(pdf_path, "rb") as f:
             attachment = f.read()
 
-        # Correct: Use Emails.send_params() to build typed dict
-        params = Emails.send_params(
-            from_email="Invoice <invoice@yourdomain.com>",
-            to=[email_to],
-            subject="The Agentive Corporation – Invoice",
-            text="Invoice attached. Pay by due date.",
-            attachments=[{
-                "filename": "invoice.pdf",
-                "content": attachment
-            }]
-        )
+        params = {  # type: ignore
+            "from": "Invoice <invoice@yourdomain.com>",
+            "to": [email_to],
+            "subject": "The Agentive Corporation – Invoice",
+            "text": "Invoice attached. Pay by due date.",
+            "attachments": [{"filename": "invoice.pdf", "content": attachment}]
+        }
 
-        Emails.send(params)
+        resend.Emails.send(params)  # type: ignore
         return json.dumps({"status": "success"})
     except Exception as e:
         return json.dumps({"error": str(e)})
