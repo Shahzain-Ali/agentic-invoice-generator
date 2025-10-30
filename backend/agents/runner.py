@@ -50,35 +50,35 @@ from email.mime.text import MIMEText
 
 from agents import function_tool
 
-@function_tool
-def send_email_tool(email_to: str, pdf_path: str) -> str:
-    """Send invoice PDF to client email with static message."""
-    print("\n\n-------------------------------- send_email_tool called!!!!! ---------------------")
-    try:
-        msg = MIMEMultipart()
-        msg['From'] = "your-email@gmail.com"  # Tumhara email
-        msg['To'] = email_to
-        msg['Subject'] = "The Agentive Corporation – Invoice Attached ✅"
-        body = "Your invoice is attached. Please pay by due date."
-        msg.attach(MIMEText(body, 'plain'))
+# @function_tool
+# def send_email_tool(email_to: str, pdf_path: str) -> str:
+#     """Send invoice PDF to client email with static message."""
+#     print("\n\n-------------------------------- send_email_tool called!!!!! ---------------------")
+#     try:
+#         msg = MIMEMultipart()
+#         msg['From'] = "alishahzain604@gmail.com"  # Tumhara email
+#         msg['To'] = email_to
+#         msg['Subject'] = "The Agentive Corporation – Invoice Attached ✅"
+#         body = "Your invoice is attached. Please pay by due date."
+#         msg.attach(MIMEText(body, 'plain'))
 
-        with open(pdf_path, "rb") as f:
-            part = MIMEApplication(f.read(), Name="invoice.pdf")
-            part['Content-Disposition'] = 'attachment; filename="invoice.pdf"'
-            msg.attach(part)
+#         with open(pdf_path, "rb") as f:
+#             part = MIMEApplication(f.read(), Name="invoice.pdf")
+#             part['Content-Disposition'] = 'attachment; filename="invoice.pdf"'
+#             msg.attach(part)
 
-        with smtplib.SMTP("smtp.gmail.com", 587) as server:
-            server.starttls()
-            app_password = os.getenv("GMAIL_APP_PASSWORD")
-            if not app_password:
-                raise ValueError("❌ GMAIL_APP_PASSWORD missing from environment!")
+#         with smtplib.SMTP("smtp.gmail.com", 587) as server:
+#             server.starttls()
+#             app_password = os.getenv("GMAIL_APP_PASSWORD")
+#             if not app_password:
+#                 raise ValueError("❌ GMAIL_APP_PASSWORD missing from environment!")
 
-            server.login("alishahzain604@gmail.com", app_password)  # App password .env se lo
-            server.send_message(msg)
+#             server.login("alishahzain604@gmail.com", app_password)  # App password .env se lo
+#             server.send_message(msg)
 
-        return json.dumps({"status": "success", "message": "Email sent"})
-    except Exception as e:
-        return json.dumps({"error": "Failed to send email", "details": str(e)})
+#         return json.dumps({"status": "success", "message": "Email sent"})
+#     except Exception as e:
+#         return json.dumps({"error": "Failed to send email", "details": str(e)})
 
 
 # import pdfkit # type: ignore
@@ -113,6 +113,34 @@ def send_email_tool(email_to: str, pdf_path: str) -> str:
 #         return json.dumps({"status": "success", "pdf_path": pdf_path})
 #     except Exception as e:
 #         return json.dumps({"error": "Failed to generate PDF", "details": str(e)})
+import resend
+from resend import Emails
+
+@function_tool
+def send_email_tool(email_to: str, pdf_path: str) -> str:
+    try:
+        resend.api_key = os.getenv("RESEND_API_KEY")
+
+        with open(pdf_path, "rb") as f:
+            attachment = f.read()
+
+        # Correct: Use Emails.send_params() to build typed dict
+        params = Emails.send_params(
+            from_email="Invoice <invoice@yourdomain.com>",
+            to=[email_to],
+            subject="The Agentive Corporation – Invoice",
+            text="Invoice attached. Pay by due date.",
+            attachments=[{
+                "filename": "invoice.pdf",
+                "content": attachment
+            }]
+        )
+
+        Emails.send(params)
+        return json.dumps({"status": "success"})
+    except Exception as e:
+        return json.dumps({"error": str(e)})
+
 
 from weasyprint import HTML
 

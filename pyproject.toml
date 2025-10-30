@@ -16,4 +16,5 @@ dependencies = [
     "gspread>=6.2.1",
     "google-auth>=2.41.1",
     "weasyprint>=66.0",
+    "resend>=2.18.0",
 ]

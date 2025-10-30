@@ -495,6 +495,7 @@ dependencies = [
     { name = "openai-agents" },
     { name = "pdfkit" },
     { name = "pycountry" },
+    { name = "resend" },
     { name = "streamlit" },
     { name = "uvicorn" },
     { name = "weasyprint" },
@@ -510,6 +511,7 @@ requires-dist = [
     { name = "openai-agents", specifier = ">=0.4.1" },
     { name = "pdfkit" },
     { name = "pycountry", specifier = ">=24.6.1" },
+    { name = "resend", specifier = ">=2.18.0" },
     { name = "streamlit" },
     { name = "uvicorn" },
     { name = "weasyprint", specifier = ">=66.0" },
@@ -1261,6 +1263,19 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/42/f2/05f29bc3913aea15eb670be136045bf5c5bbf4b99ecb839da9b422bb2c85/requests-oauthlib-2.0.0.tar.gz", hash = "sha256:b3dffaebd884d8cd778494369603a9e7b58d29111bf6b41bdc2dcd87203af4e9", size = 55650, upload-time = "2024-03-22T20:32:29.939Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/3b/5d/63d4ae3b9daea098d5d6f5da83984853c1bbacd5dc826764b249fe119d24/requests_oauthlib-2.0.0-py2.py3-none-any.whl", hash = "sha256:7dd8a5c40426b779b0868c404bdef9768deccf22749cde15852df527e6269b36", size = 24179, upload-time = "2024-03-22T20:32:28.055Z" },
+]
+
+[[package]]
+name = "resend"
+version = "2.18.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "requests" },
+    { name = "typing-extensions" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/eb/e6/af4d8e59319a5077ce803c49f3534b618cdda78492c638be45e9b16f6c3d/resend-2.18.0.tar.gz", hash = "sha256:efdd1cad141bbb636cdd7b2c2fb523912a5994f15d1266e761c5cf28ce09cacd", size = 20392, upload-time = "2025-10-29T19:56:09.395Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/60/96/5ee0ea11ef411f1e71c841a828fe1066e786e29772ab53dc22379f84c824/resend-2.18.0-py2.py3-none-any.whl", hash = "sha256:1c264e64a608554dbc7becfbc8e6a976ebd9ae1309a6ce1679a1649844951996", size = 41216, upload-time = "2025-10-29T19:56:08.442Z" },
 ]
 
 [[package]]
