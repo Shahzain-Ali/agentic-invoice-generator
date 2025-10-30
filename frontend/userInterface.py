@@ -183,7 +183,7 @@ with tab1:
             with st.spinner("Processing invoice... please wait ⏳"):
                 try:
                     response = requests.post(
-                        "http://localhost:8000/generate_invoices",
+                        "https://agentic-invoice-generator.onrender.com/generate_invoices",
                         json=manual_data,
                         timeout=None
                     )
