@@ -81,38 +81,50 @@ def send_email_tool(email_to: str, pdf_path: str) -> str:
         return json.dumps({"error": "Failed to send email", "details": str(e)})
 
 
-import pdfkit # type: ignore
+# import pdfkit # type: ignore
+
+# @function_tool
+# def generate_pdf_tool(html_content: str, data_json: str) -> str:
+#     """Generate PDF from HTML content and return paths as JSON."""
+#     print("\n\n-------------------------------- PDF Generated tool called!!!!! ---------------------\n")
+#     try:
+#         data = json.loads(data_json)
+#         client_info = data.get("client_information", {})
+#         client_name = client_info.get("client_name", "invoice").replace(" ", "_")
+#         pdf_path = f"invoices/{client_name}_{datetime.now().strftime('%Y%m%d')}.pdf"
+#         os.makedirs("invoices", exist_ok=True)
+
+#         # Configure wkhtmltopdf
+#         config = pdfkit.configuration(wkhtmltopdf=r"C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe")
+
+#         # PDF generation options
+#         options = {
+#             'page-size': 'A4',
+#             'margin-top': '0.75in',
+#             'margin-right': '0.75in',
+#             'margin-bottom': '0.75in',
+#             'margin-left': '0.75in',
+#             'encoding': "UTF-8",
+#             'no-outline': None,
+#             'enable-local-file-access': None
+#         }
+
+#         pdfkit.from_string(html_content, pdf_path, configuration=config, options=options)
+#         return json.dumps({"status": "success", "pdf_path": pdf_path})
+#     except Exception as e:
+#         return json.dumps({"error": "Failed to generate PDF", "details": str(e)})
+
+from weasyprint import HTML
 
 @function_tool
 def generate_pdf_tool(html_content: str, data_json: str) -> str:
-    """Generate PDF from HTML content and return paths as JSON."""
-    print("\n\n-------------------------------- PDF Generated tool called!!!!! ---------------------\n")
-    try:
-        data = json.loads(data_json)
-        client_info = data.get("client_information", {})
-        client_name = client_info.get("client_name", "invoice").replace(" ", "_")
-        pdf_path = f"invoices/{client_name}_{datetime.now().strftime('%Y%m%d')}.pdf"
-        os.makedirs("invoices", exist_ok=True)
+    client_info = json.loads(data_json).get("client_information", {})
+    client_name = client_info.get("client_name", "invoice").replace(" ", "_")
+    pdf_path = f"invoices/{client_name}_{datetime.now().strftime('%Y%m%d')}.pdf"
+    os.makedirs("invoices", exist_ok=True)
 
-        # Configure wkhtmltopdf
-        config = pdfkit.configuration(wkhtmltopdf=r"C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe")
-
-        # PDF generation options
-        options = {
-            'page-size': 'A4',
-            'margin-top': '0.75in',
-            'margin-right': '0.75in',
-            'margin-bottom': '0.75in',
-            'margin-left': '0.75in',
-            'encoding': "UTF-8",
-            'no-outline': None,
-            'enable-local-file-access': None
-        }
-
-        pdfkit.from_string(html_content, pdf_path, configuration=config, options=options)
-        return json.dumps({"status": "success", "pdf_path": pdf_path})
-    except Exception as e:
-        return json.dumps({"error": "Failed to generate PDF", "details": str(e)})
+    HTML(string=html_content).write_pdf(pdf_path)
+    return json.dumps({"status": "success", "pdf_path": pdf_path})
 
 
 invoice_delivery_agent = Agent(
@@ -121,6 +133,7 @@ invoice_delivery_agent = Agent(
     tools=[generate_pdf_tool, send_email_tool],
     # output_type=DeliveryOutput,
 )
+
 
 from jinja2 import Environment, FileSystemLoader
 
@@ -300,4 +313,3 @@ async def process_all_clients(all_client_data):
     #         }
     #     ]
     
-

@@ -1,10 +1,12 @@
 from datetime import datetime, timedelta
+import json
 
 
 # Helper function — sheet ke record ko schema me convert karta hai
 
 def format_google_sheet_row(row: dict) -> dict:
     """Convert Google Sheet flat data into structured invoice schema."""
+    # ✅ Fix: Convert string to dict if needed
 
     def parse_date(value):
         """Handle Excel serial, blank, or proper date strings safely."""

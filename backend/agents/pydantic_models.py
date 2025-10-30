@@ -6,7 +6,6 @@ class Item(BaseModel):
     description: str
     rate_per_hour: float
     hours: float
-    price: float
 
 
 
@@ -16,12 +15,11 @@ class ClientInformation(BaseModel):
     company_name: Optional[str] = None
     address: str
     country: str
+    current_date:str
     due_date: str  # ISO format
 
 
 class InvoiceData(BaseModel):
-    invoice_number: str
-    date: str  # ISO format
     client_information: ClientInformation
     items: list[Item]
     subtotal: float

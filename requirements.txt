@@ -231,3 +231,4 @@ uvicorn==0.34.0
     #   mcp
 watchdog==6.0.0
     # via streamlit
+weasyprint==66.0

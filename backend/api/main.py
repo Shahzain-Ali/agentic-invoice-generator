@@ -35,7 +35,3 @@ async def generate_invoices_endpoint(request: Request):
         "processed_clients": len(results),
         "details": results
     }
-
-
-
-
