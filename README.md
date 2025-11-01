@@ -1,4 +1,4 @@
-# 🚀 AutoInvoice AI  
+# AutoInvoice AI – Agentic Invoice Generator & Sender
 
 **AutoInvoice AI** is an **agentic automation tool** built with AI to **generate, customize, and send invoices automatically** — in just **~35 seconds per client**.  
 It pulls data from **forms**, **Google Sheets**, or **Excel files**, creates **PDF invoices**, and emails them directly to clients.  
@@ -134,7 +134,7 @@ GOOGLE_SHEET_ID=###########
 
 ## 📜 License
 
-MIT License © 2025 — [Your Name or Organization]
+MIT License © 2025 — [The Agentive Corporation]
 
 ## 💬 Connect
 
