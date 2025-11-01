@@ -134,7 +134,8 @@ GOOGLE_SHEET_ID=###########
 
 ## 📜 License
 
-MIT License © 2025 — [The Agentive Corporation]
+This project is licensed under the MIT License.  
+© 2025 The Agentive Corporation
 
 ## 💬 Connect
 
