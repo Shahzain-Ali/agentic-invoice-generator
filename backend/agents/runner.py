@@ -58,7 +58,7 @@ def send_email_tool(email_to: str, pdf_path: str) -> str:
     print("\n\n-------------------------------- send_email_tool called!!!!! ---------------------\n")
     try:
         msg = MIMEMultipart()
-        msg['From'] = "alishahzain604@gmail.com"  # Tumhara email
+        msg['From'] = os.getenv("GMAIL_EMAIL", "")
         msg['To'] = email_to
         msg['Subject'] = "The Agentive Corporation – Invoice Attached ✅"
         body = "Your invoice is attached. Please pay by due date."
@@ -75,7 +75,7 @@ def send_email_tool(email_to: str, pdf_path: str) -> str:
             if not app_password:
                 raise ValueError("❌ GMAIL_APP_PASSWORD missing from environment!")
 
-            server.login("alishahzain604@gmail.com", app_password)  # App password .env se lo
+            server.login(os.getenv("GMAIL_EMAIL", ""), app_password)
             server.send_message(msg)
         print("✅ Email send successfully\n")
         return json.dumps({"status": "success", "message": "Email sent"})
@@ -100,7 +100,7 @@ def generate_pdf_tool(html_content: str, data_json: str) -> str:
         os.makedirs("invoices", exist_ok=True)
 
         # wkhtmltopdf -> like a printer that converts HTML ko PDF
-        config = pdfkit.configuration(wkhtmltopdf=r"C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe")  # wkhtmltopdf path
+        config = pdfkit.configuration(wkhtmltopdf=os.getenv("WKHTMLTOPDF_PATH", r"C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe"))
 
         options = {
             'page-size': 'A4',

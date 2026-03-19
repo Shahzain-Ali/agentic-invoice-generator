@@ -199,8 +199,9 @@ with tab1:
             
             with st.spinner("Processing invoice... please wait ⏳"):
                 try:
+                    api_url = os.getenv("API_URL", "http://localhost:8000")
                     response = requests.post(
-                        "http://localhost:8000//generate_invoices",
+                        f"{api_url}/generate_invoices",
                         json=manual_data,
                         timeout=None
                     )
@@ -239,7 +240,7 @@ with tab2:
 
                # Google Sheet access setup
                scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
-               creds = Credentials.from_service_account_file('credentials.json', scopes=scope)
+               creds = Credentials.from_service_account_file(os.getenv('GOOGLE_CREDENTIALS_PATH', 'credentials.json'), scopes=scope)
                client = gspread.authorize(creds)
 
                google_sheet_id = os.getenv('GOOGLE_SHEET_ID')
@@ -283,8 +284,9 @@ with tab2:
             
             with st.spinner("Processing invoices... please wait ⏳"):
                 try:
+                    api_url = os.getenv("API_URL", "http://localhost:8000")
                     response = requests.post(
-                        "http://localhost:8000/generate_invoices",
+                        f"{api_url}/generate_invoices",
                         json=sheet_data_json,
                         timeout=None
                     )
@@ -322,8 +324,9 @@ with tab2:
                     
                     with st.spinner("Processing invoices... please wait ⏳"):
                         try:
+                            api_url = os.getenv("API_URL", "http://localhost:8000")
                             response = requests.post(
-                                "http://localhost:8000/generate_invoices",
+                                f"{api_url}/generate_invoices",
                                 json=excel_data_json,
                                 timeout=60
                             )
