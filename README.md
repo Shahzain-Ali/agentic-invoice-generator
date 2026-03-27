@@ -9,7 +9,7 @@ Ideal for **marketing agencies**, **e-commerce**, **SaaS**, and **software house
 
 ## ✨ Features
 
-- 🧠 **AI-Powered Automation:** Uses **OpenAI Agents SDK** + **Gemini 2.0 Flash** for intelligent data handling
+- 🧠 **AI-Powered Automation:** Uses **OpenAI Agents SDK** + **Gemini 2.5 Flash** for intelligent data handling
 - 📊 **Multiple Data Sources:** Input via **web form**, **Google Sheets**, or **Excel upload**
 - 🧾 **PDF Generation:** Creates styled invoices using **Jinja2 templates** and **pdfkit**
 - 📧 **Email Delivery:** Sends invoices via **Gmail SMTP** with attachments
@@ -26,7 +26,7 @@ Ideal for **marketing agencies**, **e-commerce**, **SaaS**, and **software house
 |-------|------------|
 | **Backend** | FastAPI, OpenAI Agents SDK, Python 3.12+ |
 | **Frontend** | Streamlit |
-| **AI Model** | Google Gemini 2.0 Flash (Free Tier) |
+| **AI Model** | Google Gemini 2.5 Flash (Free Tier) |
 | **Templates** | Jinja2 |
 | **PDF Generation** | pdfkit + wkhtmltopdf |
 | **Email** | smtplib (Gmail SMTP + MIME) |
