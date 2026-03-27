@@ -48,8 +48,8 @@ Ideal for **marketing agencies**, **e-commerce**, **SaaS**, and **software house
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/Shahzain-Ali/Agentic-Invoice-Generator.git
-cd Agentic-Invoice-Generator
+git clone https://github.com/Shahzain-Ali/agentic-invoice-generator.git
+cd agentic-invoice-generator
 ```
 
 ### 2. Install Dependencies
