@@ -19,19 +19,17 @@ enable_verbose_stdout_logging()
 
 load_dotenv()
 
-# Set up Gemini API key and client
-gemini_api_key = os.getenv('GEMINI_API_KEY')
-if not gemini_api_key:
-    raise ValueError('API key is not set in the environment variable')
+# Set up OpenAI API key and client
+openai_api_key = os.getenv('OPENAI_API_KEY')
+if not openai_api_key:
+    raise ValueError('OPENAI_API_KEY is not set in the environment variable')
 
-gemini_api_key = os.getenv('GEMINI_API_KEY')
 external_client = AsyncOpenAI(
-    api_key=gemini_api_key,
-    base_url='https://generativelanguage.googleapis.com/v1beta/openai/'
+    api_key=openai_api_key,
 )
 
 model = OpenAIChatCompletionsModel(
-    model='gemini-2.5-flash',
+    model='gpt-4o-mini',
     openai_client=external_client
 )
 
@@ -60,7 +58,7 @@ def send_email_tool(email_to: str, pdf_path: str) -> str:
         msg = MIMEMultipart()
         msg['From'] = os.getenv("GMAIL_EMAIL", "")
         msg['To'] = email_to
-        msg['Subject'] = "The Agentive Corporation – Invoice Attached ✅"
+        msg['Subject'] = "AutoInvoice AI – Invoice Attached ✅"
         body = "Your invoice is attached. Please pay by due date."
         msg.attach(MIMEText(body, 'plain'))
 
@@ -84,6 +82,22 @@ def send_email_tool(email_to: str, pdf_path: str) -> str:
 
 
 import pdfkit # type: ignore
+import platform
+
+def get_wkhtmltopdf_path() -> str:
+    """Get wkhtmltopdf path based on OS."""
+    env_path = os.getenv("WKHTMLTOPDF_PATH")
+    if env_path:
+        return env_path
+    
+    # Auto-detect based on OS
+    system = platform.system()
+    if system == "Windows":
+        return r"C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe"
+    elif system == "Darwin":  # macOS
+        return "/usr/local/bin/wkhtmltopdf"
+    else:  # Linux
+        return "/usr/bin/wkhtmltopdf"
 
 @function_tool
 def generate_pdf_tool(html_content: str, data_json: str) -> str:
@@ -100,7 +114,9 @@ def generate_pdf_tool(html_content: str, data_json: str) -> str:
         os.makedirs("invoices", exist_ok=True)
 
         # wkhtmltopdf -> like a printer that converts HTML ko PDF
-        config = pdfkit.configuration(wkhtmltopdf=os.getenv("WKHTMLTOPDF_PATH", r"C:\Program Files\wkhtmltopdf\bin\wkhtmltopdf.exe"))
+        wkhtmltopdf_path = get_wkhtmltopdf_path()
+        print(f"Using wkhtmltopdf path: {wkhtmltopdf_path}")
+        config = pdfkit.configuration(wkhtmltopdf=wkhtmltopdf_path)
 
         options = {
             'page-size': 'A4',

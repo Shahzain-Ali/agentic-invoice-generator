@@ -11,3 +11,18 @@ venv
 .env
 credentials.json
 
+Client: Luxury Serviced Apartment Brand (Feb 2026)
+Built 7 automated communication workflows for a luxury serviced apartment operator targeting corporate clients, embassies, and
+VIPs.
+
+The 7 workflows:
+1. Booking Confirmation (Email + WhatsApp)
+2. Pre-Arrival Welcome — 48hrs before check-in (Email + WhatsApp)
+3. Check-In Day Message (WhatsApp)
+4. Mid-Stay Check-In — 48hrs after check-in (WhatsApp)
+5. Post-Stay Review Request — 24hrs after check-out (Email + WhatsApp)
+6. Re-Booking Offer — 14 days post check-out (Email)
+7. Corporate Follow-Up — new corporate contact (Email)
+
+CRM integration | WhatsApp Business API | Email automation | Delivered as ready-to-import workflow files
+

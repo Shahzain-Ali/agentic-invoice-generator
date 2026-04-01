@@ -9,7 +9,7 @@ Ideal for **marketing agencies**, **e-commerce**, **SaaS**, and **software house
 
 ## ✨ Features
 
-- 🧠 **AI-Powered Automation:** Uses **OpenAI Agents SDK** + **Gemini 2.5 Flash** for intelligent data handling
+- 🧠 **AI-Powered Automation:** Uses **OpenAI Agents SDK** with **GPT-4o-mini** and **3 specialized agents** (Validation → Template → Delivery) for end-to-end invoice processing
 - 📊 **Multiple Data Sources:** Input via **web form**, **Google Sheets**, or **Excel upload**
 - 🧾 **PDF Generation:** Creates styled invoices using **Jinja2 templates** and **pdfkit**
 - 📧 **Email Delivery:** Sends invoices via **Gmail SMTP** with attachments
@@ -26,7 +26,7 @@ Ideal for **marketing agencies**, **e-commerce**, **SaaS**, and **software house
 |-------|------------|
 | **Backend** | FastAPI, OpenAI Agents SDK, Python 3.12+ |
 | **Frontend** | Streamlit |
-| **AI Model** | Google Gemini 2.5 Flash (Free Tier) |
+| **AI Model** | OpenAI GPT-4o-mini via OpenAI Agents SDK |
 | **Templates** | Jinja2 |
 | **PDF Generation** | pdfkit + wkhtmltopdf |
 | **Email** | smtplib (Gmail SMTP + MIME) |
@@ -102,7 +102,6 @@ uv sync
 
 2. Open `.env` and fill in your actual values:
    ```
-   GEMINI_API_KEY=your_gemini_api_key
    OPENAI_API_KEY=your_openai_api_key
    GMAIL_EMAIL=your_email@gmail.com
    GMAIL_APP_PASSWORD=your_16_digit_app_password
@@ -134,7 +133,7 @@ streamlit run frontend/userInterface.py
 ### In the Streamlit UI
 
 1. Fill the form **or** connect to Google Sheets **or** upload an Excel file
-2. Click **"Generate Invoices"**
+2. Click **"Process & Deliver Invoices"**
 3. Watch live progress (Fetching → Generating → Sending)
 4. Download PDFs individually or all invoices as a ZIP
 
@@ -142,7 +141,7 @@ streamlit run frontend/userInterface.py
 
 ## 📺 Demo
 
-[Project Demo Video]()
+[Project Demo Video](https://youtube.com/your-video-link) *(Coming Soon)* — *Coming Soon*
 
 ---
 

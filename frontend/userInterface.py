@@ -137,8 +137,8 @@ st.markdown("""
 # Header
 st.markdown("""
     <div class="header-container">
-        <h1 class="header-title">💼 The Agentive Corporation – AutoInvoice AI</h1>
-        <p class="header-subtitle">Generate and email client invoices automatically with AI</p>
+        <h1 class="header-title">💼 AutoInvoice AI</h1>
+        <p class="header-subtitle">Collect client details, generate invoices, and deliver them via email — all powered by AI</p>
     </div>
 """, unsafe_allow_html=True)
 
@@ -177,7 +177,7 @@ with tab1:
     
     # st.markdown('</div>', unsafe_allow_html=True)
     
-    if st.button("🚀 Generate Invoice (Manual)", key="manual_generate"):
+    if st.button("🚀 Process & Deliver Invoice (Manual)", key="manual_generate"):
         if not all([client_name, email, company_name, address, country, description]):
             st.error("⚠️ Please fill in all required fields!")
         else:
@@ -270,12 +270,14 @@ with tab2:
                    st.success(f"✅ {total_rows} rows fetched successfully")
 
             except Exception as e:
-                st.error(f"❌ Error fetching data: {str(e)}")
+                import traceback
+                st.error(f"❌ Error fetching data: {type(e).__name__}: {str(e)}")
+                st.code(traceback.format_exc())
     
     if st.session_state.sheet_data is not None:
         # st.dataframe(st.session_state.sheet_data, use_container_width=True)
         
-        if st.button("🚀 Generate Invoices (Google Sheet)", key="sheet_generate"):
+        if st.button("🚀 Process & Deliver Invoices (Google Sheet)", key="sheet_generate"):
             sheet_data_json = {
                 "method": "google_sheet",
                 "sheet_id": sheet_id,
@@ -316,7 +318,7 @@ with tab2:
                 st.success(f"✅ File uploaded successfully! Found {len(st.session_state.excel_data)} rows.")
                 st.dataframe(st.session_state.excel_data, use_container_width=True)
                 
-                if st.button("🚀 Generate Invoices (Excel)", key="excel_generate"):
+                if st.button("🚀 Process & Deliver Invoices (Excel)", key="excel_generate"):
                     excel_data_json = {
                         "method": "excel",
                         "data": st.session_state.excel_data.to_dict('records')
@@ -479,6 +481,6 @@ if st.session_state.generated_results:
 # Footer
 st.markdown("""
     <div class="footer">
-        © 2025 The Agentive Corporation | Powered by AI
+        © 2025 AutoInvoice AI | Powered by AI
     </div>
 """, unsafe_allow_html=True)
